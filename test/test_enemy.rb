@@ -302,7 +302,6 @@ class TestEnemy < Test::Unit::TestCase
     packman.move_to(7, 4)
 
     v = V.new(6, 5, @field7, packman)
-    v.dbg = true
     h = H.new(8, 5, @field7, packman)
     v.move_to(7, 5)
     h.move_to(7, 5)
@@ -311,7 +310,32 @@ class TestEnemy < Test::Unit::TestCase
 
     assert_equal([packman.x, packman.y], [v.x, v.y])
     assert_equal([packman.x, packman.y], [h.x, h.y])
+  end
 
+  def test_dup
+    c = Character.new(2, 2, @field1)
+    c.move_to(3, 2)
+    c2 = c.dup
+    c.move_to(4, 2)
+    assert_equal([c2.x, c2.y], [3, 2])
+    assert_equal([c2.prev_x, c2.prev_y], [2, 2])
+    assert_equal(c2.time, 1)
+    assert_equal(c2.field, @field1)
+  end
+
+  def test_dup_v
+    packman = Packman.new(4, 4, @field1)
+    v = V.new(2, 2, @field1, packman)
+    v.move_to(3, 2)
+    v2 = v.dup
+    v.move_to(4, 2)
+    packman.move_to(3, 4)
+    assert_equal([v2.x, v2.y], [3, 2])
+    assert_equal([v2.prev_x, v2.prev_y], [2, 2])
+    assert_equal(v2.time, 1)
+    assert_equal(v2.field, @field1)
+    v2_packman = v2.instance_eval { @packman }
+    assert_equal([v2_packman.x, v2_packman.y], [4, 4])
   end
 end
 

@@ -29,6 +29,10 @@ class Character
   def symbol
     throw 'symbol is not set'
   end
+
+  def dup
+    Marshal.load(Marshal.dump(self))
+  end
 end
 
 class Packman < Character
@@ -82,12 +86,10 @@ class Enemy < Character
 end
 
 class V < Enemy
-  attr_accessor :dbg
 
   def initialize(x, y, field, packman)
     throw unless packman.is_a? Packman
     @packman = packman
-    @dbg = false
     super(x, y, field)
   end
 

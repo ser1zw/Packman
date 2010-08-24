@@ -1,1 +1,2 @@
 Packman
+Usage: ruby packman.rb input_file

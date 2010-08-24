@@ -11,7 +11,7 @@ def show(time, score, input_history, field)
   clear
   addstr "TIME: #{time}\tSCORE: #{score}\n"
   addstr "INPUT: #{input_history.join}\n"
-  addstr "PRESS 'q' to quit\n"
+  addstr "PRESS 'q' to quit, 'u' to undo\n"
   addstr field.map { |row| row.join }.join("\n")
   refresh
 end
@@ -49,20 +49,22 @@ enemies.map! { |x| eval x }
 score = 0
 time = TIME_LIMIT
 include Curses
-init_screen
+# init_screen
+
+history_suffix = '_history'
 input_history = []
+packman_history = []
+enemies_history = []
+score_history = []
+field_history = []
+dot_map_history = []
 gameover = false
 
-# a = 'llllkkjjhhk.khkkllljjhhhkhhkhhhjjj'.split(//)
 begin
   show(time, score, input_history, field)
   while !gameover
     # 入力を受け取って
     c = getch.chr
-    # break if a.nil?
-    # c = a.shift
-    # getch
-
     dx, dy = 0, 0
     case c
     when 'h'
@@ -74,9 +76,20 @@ begin
     when 'l'
       dx = 1
     when '.'
+    when 'u'
+      unless time == TIME_LIMIT
+        input_history.pop
+        %w(score packman enemies field dot_map).each { |obj_name|
+          eval("#{obj_name} = #{obj_name}#{history_suffix}.pop")
+        }
+        time += 1
+      end
+      show(time, score, input_history, field)
+      next
     when 'q'
       break
     else
+      show(time, score, input_history, field)
       next
     end
 
@@ -87,6 +100,11 @@ begin
       next
     end
     input_history << c
+    packman_history << packman.dup
+    enemies_history << Marshal.load(Marshal.dump(enemies))
+    score_history << score
+    field_history << Marshal.load(Marshal.dump(field))
+    dot_map_history << Marshal.load(Marshal.dump(dot_map))
 
     # 敵動かして
     enemies.each { |c|
